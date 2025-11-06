@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Question Paper Security System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2em;
+      background-color: #f4f4f9;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    input[type="datetime-local"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .decrypt-button {
+      background-color: #28a745;
+    }
+
+    .decrypt-button:hover {
+      background-color: #218838;
+    }
+
+    .wallet-button {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .wallet-button:hover {
+      background-color: #e0a800;
+    }
+
+    #results,
+    #decrypt-results,
+    #admin-results {
+      margin-top: 20px;
+      background-color: #e9ecef;
+      padding: 10px;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- UPLOAD SECTION -->
+  <div class="container">
+    <h1>Upload Question Paper</h1>
+    <form id="uploadForm">
+      <div class="form-group"><label>Paper ID / Title:</label><input type="text" id="paperId" required></div>
+      <div class="form-group"><label>Release Time:</label><input type="datetime-local" id="releaseTime" required></div>
+      <div class="form-group"><label>File:</label><input type="file" id="file" required></div>
+      <button type="submit">Encrypt and Upload</button>
+    </form>
+    <div id="results">
+      <p>Upload results will be shown here...</p>
+    </div>
+  </div>
+
+  <!-- DECRYPT SECTION -->
+  <div class="container">
+    <h1>Decrypt Question Paper</h1>
+    <button id="connectWalletBtn" class="wallet-button">Connect MetaMask Wallet</button>
+    <p id="walletStatus">Status: Not Connected</p>
+    <hr>
+    <form id="decryptForm">
+      <div class="form-group"><label>Paper ID:</label><input type="text" id="decryptPaperId" required></div>
+      <button type="submit" class="decrypt-button" disabled>Decrypt</button>
+    </form>
+    <div id="decrypt-results">
+      <p>Decryption results will be shown here...</p>
+    </div>
+  </div>
+
+  <!-- ADMIN SECTION -->
+  <div class="container">
+    <h1>Admin – Add Authorized User</h1>
+    <form id="adminForm">
+      <div class="form-group"><label>Wallet Address:</label><input type="text" id="newUserAddress" placeholder="0x..."
+          required></div>
+      <button type="submit">Add Authorized User</button>
+    </form>
+    <div id="admin-results">
+      <p>Admin actions will appear here...</p>
+    </div>
+  </div>
+
+  <script>
+
+    let provider, signer, contract, addr;
+
+    // Utility: Convert hex to bytes
+    function hexToBytes(hex) {
+      if (hex.startsWith("0x")) hex = hex.slice(2);
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < hex.length; i += 2) {
+        bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+      }
+      return bytes;
+    }
+
+    // Connect MetaMask
+    const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const walletStatus = document.getElementById('walletStatus');
+    const decryptForm = document.getElementById('decryptForm');
+    const decryptButton = decryptForm.querySelector('button');
+    const decryptResultsDiv = document.getElementById('decrypt-results');
+
+    connectWalletBtn.addEventListener('click', async () => {
+
+      if (!window.ethereum) {
+        walletStatus.textContent = "❌ MetaMask not installed!";
+        return;
+      }
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        const addr = await signer.getAddress();
+
+        // ✅ Call Flask API to verify authorization
+        const res = await fetch(`http://127.0.0.1:5000/is_authorized/${addr}`);
+        const data = await res.json();
+        const isAuthorized = data.authorized;
+
+        walletStatus.textContent = isAuthorized
+          ? `✅ Authorized Wallet: ${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`
+          : `❌ Not Authorized: ${addr}`;
+
+        decryptButton.disabled = !isAuthorized;
+      } catch (e) {
+        walletStatus.textContent = "❌ Connection failed";
+        console.error(e);
+      }
+      addr = await signer.getAddress();
+    });
+
+    // Upload Question Paper
+    const uploadForm = document.getElementById('uploadForm');
+    const resultsDiv = document.getElementById('results');
+    uploadForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      resultsDiv.innerHTML = '<p>⏳ Processing... Please wait.</p>';
+      const releaseTimestamp = Math.floor(new Date(document.getElementById('releaseTime').value).getTime() / 1000);
+      const fileInput = document.getElementById('file');
+      const formData = new FormData();
+      formData.append('paperId', document.getElementById('paperId').value);
+      formData.append('file', fileInput.files[0]);
+      formData.append('releaseTime', releaseTimestamp);
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/upload', { method: 'POST', body: formData });
+        const result = await response.json();
+        resultsDiv.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+      } catch (error) {
+        console.error(error);
+        resultsDiv.innerHTML = `<p style="color:red"><strong>Error:</strong> ${error.message}</p>`;
+      }
+    });
+
+    // ✅ Decrypt Question Paper (Frontend AES-GCM Decryption)
+    decryptForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const paperId = document.getElementById('decryptPaperId').value.trim();
+      decryptResultsDiv.innerHTML = '<p>⏳ Fetching and decrypting paper...</p>';
+
+      try {
+        // 1️⃣ Get encryption data from backend
+        const paperRes = await fetch('http://127.0.0.1:5000/decrypt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paperId,
+            address: addr  // ✅ send connected MetaMask wallet
+          })
+        });
+
+        const result = await paperRes.json();
+        if (result.status !== "success") throw new Error(result.message);
+
+        const aesKeyHex = result.aesKeyHex;
+        const paper = result.paper;
+        const ciphertextHex = paper.ciphertext;
+        const nonceHex = paper.nonce;
+        const tagHex = paper.tag;
+        const filename = paper.filename || "decrypted_file.pdf";
+        const mimeType = paper.mimetype || "application/pdf";
+
+        // 2️⃣ Convert hex → bytes
+        const keyBytes = hexToBytes(aesKeyHex);
+        const nonceBytes = hexToBytes(nonceHex);
+        const ciphertextBytes = hexToBytes(ciphertextHex);
+        const tagBytes = hexToBytes(tagHex);
+
+        // 3️⃣ Combine ciphertext + tag
+        const encryptedBytes = new Uint8Array([...ciphertextBytes, ...tagBytes]);
+
+        // 4️⃣ Import AES-GCM key
+        const cryptoKey = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-GCM" }, false, ["decrypt"]);
+
+        // 5️⃣ Perform AES decryption
+        const decryptedBuffer = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: nonceBytes },
+          cryptoKey,
+          encryptedBytes
+        );
+
+        // 6️⃣ Create Blob and download
+        const blob = new Blob([decryptedBuffer], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        decryptResultsDiv.innerHTML = `✅ Decryption successful! File downloaded: ${filename}`;
+      } catch (err) {
+        console.error(err);
+        decryptResultsDiv.innerHTML = `<p style="color:red">❌ Error: ${err.message}</p>`;
+      }
+    });
+
+    // Admin – Add Authorized User
+    const adminForm = document.getElementById('adminForm');
+    const adminResultsDiv = document.getElementById('admin-results');
+
+    adminForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newUser = document.getElementById('newUserAddress').value;
+
+      try {
+        if (!window.ethereum) {
+          adminResultsDiv.innerHTML = "<p style='color:red'>❌ MetaMask not installed.</p>";
+          return;
+        }
+
+        // ✅ Request MetaMask connection
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const sender = accounts[0]; // connected wallet address
+
+        // ✅ Send both addresses to backend
+        const res = await fetch("http://127.0.0.1:5000/add_user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            new_user: newUser,
+            sender: sender
+          })
+        });
+
+        const data = await res.json();
+        adminResultsDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        adminResultsDiv.innerHTML = `<p style='color:red'>${err.message}</p>`;
+      }
+    });
+
+  </script>
+</body>
+
+</html>
