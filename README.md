@@ -1,150 +1,117 @@
-Blockchain Secure Exam System
+# Blockchain Secure Exam System
 
-A proof-of-concept project that leverages blockchain technology to build a secure, transparent, and tamper-proof system for distributing sensitive examination papers.
+A proof-of-concept project that leverages **blockchain technology** to build a secure, transparent, and tamper-proof system for distributing sensitive examination papers.
 
-This system replaces traditional trust-based workflows with a decentralized, cryptographically secure process, helping prevent:
+This system replaces traditional trust-based workflows with a **decentralized, cryptographically secure process**, helping prevent:
 
-Examination paper leaks
+- Examination paper leaks  
+- Unauthorized access  
+- Data tampering  
+- Lack of auditability  
 
-Unauthorized access
+---
 
-Data tampering
+## 🚀 Features
 
-Lack of auditability
+- Secure storage using blockchain  
+- Tamper-proof exam paper records  
+- Decentralized verification  
+- Transparent audit trail  
+- Wallet-based authentication  
 
-🚀 Features
+---
 
-Secure storage using blockchain
+## 🛠 Tech Stack
 
-Tamper-proof exam paper records
+- **Blockchain:** Ganache, Truffle  
+- **Backend:** Python  
+- **Frontend:** HTML / JavaScript  
+- **Storage:** Pinata (IPFS)  
+- **Wallet:** MetaMask  
 
-Decentralized verification
+---
 
-Transparent audit trail
-
-Wallet-based authentication
-
-🛠 Tech Stack
-
-Blockchain: Ganache, Truffle
-
-Backend: Python
-
-Frontend: HTML / JS
-
-Storage: Pinata (IPFS)
-
-Wallet: MetaMask
-
-✅ Prerequisites
+## ✅ Prerequisites
 
 Install the following before running the project:
 
-Ganache
+- Ganache  
+- Node.js & npm  
+- MetaMask Browser Extension  
+- Python  
 
-Node.js & npm
+---
 
-MetaMask Browser Extension
+## 🔗 Blockchain & Wallet Setup
 
-Python
+### 1️⃣ Ganache Setup
 
-🔗 Blockchain & Wallet Setup
-1️⃣ Ganache Setup
+1. Open **Ganache**
+2. Create a **New Workspace**
+3. Go to **Settings → Add Project**
+4. Select the `truffle.config.js` file
+5. Save & Restart Ganache
 
-Open Ganache
+---
 
-Create a New Workspace
+### 2️⃣ Import Account into MetaMask
 
-Go to Settings → Add Project
+1. In Ganache → Go to **Accounts**
+2. Click the **key icon** to reveal the private key
+3. Copy the private key
 
-Select the truffle.config.js file
+4. Open **MetaMask**
+5. Click **Import Account**
+6. Paste the private key
 
-Save & Restart Ganache
+✔ Your balance should display **100 ETH**
 
-2️⃣ Import Account into MetaMask
+---
 
-In Ganache → Go to Accounts
+### ⚠ If Balance is Not Visible
 
-Click the key icon to reveal the private key
+1. Go to **MetaMask → Networks → Add Custom Network**
+2. Enter:
 
-Copy the private key
+- **Network Name:** Ganache  
+- **RPC URL:** (From Ganache)  
+- **Chain ID:** (From Ganache)  
+- **Currency Symbol:** ETH  
 
-Open MetaMask
+3. Save & Confirm
 
-Click Import Account
+---
 
-Paste the private key
-
-✔ Your balance should display 100 ETH
-
-⚠ If Balance is Not Visible
-
-Go to MetaMask → Networks → Add Custom Network
-
-Enter:
-
-Network Name: Ganache
-
-RPC URL: (From Ganache)
-
-Chain ID: (From Ganache)
-
-Currency Symbol: ETH
-
-Save & Confirm
-
-📦 Installation
+## 📦 Installation
 
 Clone the repository and install dependencies:
 
+```bash
 npm install
-🔐 Configuration
+
+## 🔐 Configuration
 1️⃣ Pinata Setup
+    Create a Pinata Cloud Account
+    Generate an API Key
+    Copy the JWT Token
+    Paste it into:
+    PINATA_JWT in app.py
 
-Create a Pinata Cloud Account
-
-Generate an API Key
-
-Copy the JWT Token
-
-Paste it into:
-
-PINATA_JWT in app.py
 2️⃣ Deploy Smart Contract
-
 Run:
-
-truffle migrate --reset
-
+    truffle migrate --reset
 Copy the deployed contract address and update:
-
 CONTRACT_ADDRESS in app.py
-▶ Running the Application
-Start Backend
-cd backend
-python app.py
-Start Frontend
+
+**▶ Running the Application
+Start Backend**
+      cd backend
+      python app.py
+**Start Frontend**
 
 Open a new terminal:
 
-cd frontend
-python -m http.server
-Open in Browser
-http://localhost:8000
-🐞 Troubleshooting
-
-Issue: MetaMask not showing balance
-✔ Ensure Ganache network is correctly configured
-
-Issue: Contract not detected
-✔ Re-run truffle migrate --reset
-
-Issue: Pinata upload errors
-✔ Verify JWT token validity
-
-📁 Project Structure
-/backend
-/frontend
-/contracts
-/migrations
-truffle-config.js
+    cd frontend
+    python -m http.server
+    Open in Browser
+    http://localhost:8000
