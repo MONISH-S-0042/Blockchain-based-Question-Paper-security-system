@@ -1,25 +1,150 @@
 Blockchain Secure Exam System
-A proof-of-concept project that leverages blockchain technology to create a highly secure, transparent, and auditable system for distributing sensitive examination papers. This system is designed to prevent leaks, tampering, and unauthorized access by replacing traditional manual, trust-based methods with a decentralized, cryptographically secure workflow.
 
-Pre-requisite to run the program:
-    1)Download **Ganache** from your preferred browser.
-    2)Download **Node.js and npm**.
-    3)Add **MetaMask** extension to your browser.
+A proof-of-concept project that leverages blockchain technology to build a secure, transparent, and tamper-proof system for distributing sensitive examination papers.
 
-Instructions:
+This system replaces traditional trust-based workflows with a decentralized, cryptographically secure process, helping prevent:
 
-  **Blockchain and wallet Setup:**
-    1)Open Ganache and create new workspace, click on settings and add project- add **truffle.config** file. Save and restart your Ganache.
-    2)Goto accounts and click the key symbol on the rightmost side- it will display the private key of that account. Copy that private key.
-    3)Open Browser- **metamask**, Goto add wallet and select **import an account**, then paste the private key copied from ganache. Now the balance will be update in metamask wallet(default-100ETH)
-        (if balnce is not displayed-> click networks, goto custom network and give name as Ganache, RPC URL & ChainID from Ganache, Token as ETH and click confirm, now the balance would have been updated)
-    
-  **Program Instructions:**
-    1)Open the folder and run the command - **npm install**
-    2)Create a pinata cloud account and **create api key**, copy the JWT and paste that JWT in **PINATA_JWT** in **app.py**.
-    3)run the command - **truffle migrate --reset**, copy the contract address and paste it in **CONTRACT_ADDRESS in app.py**.
-    4)run - **cd backend, python app.py**
-    5)Open a new terminal - **cd frontend, python -m http.server**
-    6)Open browser- localhost:8000
-    
-    
+Examination paper leaks
+
+Unauthorized access
+
+Data tampering
+
+Lack of auditability
+
+🚀 Features
+
+Secure storage using blockchain
+
+Tamper-proof exam paper records
+
+Decentralized verification
+
+Transparent audit trail
+
+Wallet-based authentication
+
+🛠 Tech Stack
+
+Blockchain: Ganache, Truffle
+
+Backend: Python
+
+Frontend: HTML / JS
+
+Storage: Pinata (IPFS)
+
+Wallet: MetaMask
+
+✅ Prerequisites
+
+Install the following before running the project:
+
+Ganache
+
+Node.js & npm
+
+MetaMask Browser Extension
+
+Python
+
+🔗 Blockchain & Wallet Setup
+1️⃣ Ganache Setup
+
+Open Ganache
+
+Create a New Workspace
+
+Go to Settings → Add Project
+
+Select the truffle.config.js file
+
+Save & Restart Ganache
+
+2️⃣ Import Account into MetaMask
+
+In Ganache → Go to Accounts
+
+Click the key icon to reveal the private key
+
+Copy the private key
+
+Open MetaMask
+
+Click Import Account
+
+Paste the private key
+
+✔ Your balance should display 100 ETH
+
+⚠ If Balance is Not Visible
+
+Go to MetaMask → Networks → Add Custom Network
+
+Enter:
+
+Network Name: Ganache
+
+RPC URL: (From Ganache)
+
+Chain ID: (From Ganache)
+
+Currency Symbol: ETH
+
+Save & Confirm
+
+📦 Installation
+
+Clone the repository and install dependencies:
+
+npm install
+🔐 Configuration
+1️⃣ Pinata Setup
+
+Create a Pinata Cloud Account
+
+Generate an API Key
+
+Copy the JWT Token
+
+Paste it into:
+
+PINATA_JWT in app.py
+2️⃣ Deploy Smart Contract
+
+Run:
+
+truffle migrate --reset
+
+Copy the deployed contract address and update:
+
+CONTRACT_ADDRESS in app.py
+▶ Running the Application
+Start Backend
+cd backend
+python app.py
+Start Frontend
+
+Open a new terminal:
+
+cd frontend
+python -m http.server
+Open in Browser
+http://localhost:8000
+🐞 Troubleshooting
+
+Issue: MetaMask not showing balance
+✔ Ensure Ganache network is correctly configured
+
+Issue: Contract not detected
+✔ Re-run truffle migrate --reset
+
+Issue: Pinata upload errors
+✔ Verify JWT token validity
+
+📁 Project Structure
+/backend
+/frontend
+/contracts
+/migrations
+truffle-config.js
