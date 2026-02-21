@@ -86,7 +86,6 @@ Install the following before running the project:
 
 Clone the repository and install dependencies:
 
-```bash
 npm install
 
 ## 🔐 Configuration
